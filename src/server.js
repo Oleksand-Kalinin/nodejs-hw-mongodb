@@ -4,10 +4,7 @@ import cors from 'cors';
 import { env } from './utils/env.js';
 import { getAllContacts, getContactById } from './services/contacts.js';
 
-
-
 const PORT = Number(env('PORT', '3000'));
-
 
 export const setupServer = () => {
     const app = express();
@@ -15,11 +12,13 @@ export const setupServer = () => {
     app.use(express.json());
     app.use(cors());
 
-    app.use(pino({
-        transport: {
-            target: 'pino-pretty',
-        },
-    }));
+    app.use(
+        pino({
+            transport: {
+                target: 'pino-pretty',
+            },
+        }),
+    );
 
     app.get('/contacts', async (req, res) => {
         const contacts = await getAllContacts();
@@ -36,7 +35,7 @@ export const setupServer = () => {
 
         if (!contact) {
             res.status(404).json({
-                message: "Contact not found"
+                message: 'Contact not found',
             });
             return;
         }
@@ -47,7 +46,6 @@ export const setupServer = () => {
             data: contact,
         });
     });
-
 
     app.get('/', (req, res) => {
         res.json({ message: 'Server is enable' });
@@ -61,15 +59,12 @@ export const setupServer = () => {
 
     app.use('*', (err, req, res, next) => {
         res.status(500).json({
-            message: "Something went wrong",
-            error: err.message
+            message: 'Something went wrong',
+            error: err.message,
         });
     });
-
-
 
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
-
 };
