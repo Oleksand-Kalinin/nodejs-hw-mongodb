@@ -16,7 +16,7 @@ export const getAllContacts = async ({ page, perPage, sortOrder, sortBy }) => {
     const paginationData = calculatePaginationData(total, perPage, page);
 
     return {
-        contacts,
+        data: contacts,
         ...paginationData,
     };
 };
