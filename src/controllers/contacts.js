@@ -14,7 +14,7 @@ export const getContactsController = async (req, res) => {
     const { page, perPage } = parsePaginationParams(req.query);
     const { sortBy, sortOrder } = parseSortParams(req.query);
 
-    const result = await getAllContacts({ page, perPage, sortBy, sortOrder });
+    const result = await getAllContacts({ page, perPage, sortBy, sortOrder, userId: req.user._id });
 
     res.status(200).json({
         status: 200,
@@ -25,11 +25,16 @@ export const getContactsController = async (req, res) => {
 
 export const getContactByIdController = async (req, res) => {
     const { contactId } = req.params;
-    const contact = await getContactById(contactId);
+    const contact = await getContactById(contactId, req.user._id);
 
     if (!contact) {
         throw createHttpError(404, 'Contact not found');
     }
+
+    // if (contact.userId?.toString() !== req.user._id.toString()) {
+    //     // throw createHttpError(403, 'Contact is forbidden');
+    //     throw createHttpError(404, 'Contact not found');
+    // }
 
     res.status(200).json({
         status: 200,
@@ -40,7 +45,15 @@ export const getContactByIdController = async (req, res) => {
 
 export const createContactController = async (req, res) => {
     const { name, phoneNumber, email, isFavourite, contactType } = req.body;
-    const newContact = { name, phoneNumber, email, isFavourite, contactType };
+
+    const newContact = {
+        name,
+        phoneNumber,
+        email,
+        isFavourite,
+        contactType,
+        userId: req.user._id,
+    };
 
     const contact = await createContact(newContact);
 
@@ -54,11 +67,16 @@ export const createContactController = async (req, res) => {
 export const deleteContactController = async (req, res) => {
     const { contactId } = req.params;
 
-    const contact = await deleteContact(contactId);
+    const contact = await deleteContact(contactId, req.user._id);
 
     if (!contact) {
         throw createHttpError(404, 'Contact not found');
     }
+
+    // if (contact.userId?.toString() !== req.user._id.toString()) {
+    //     // throw createHttpError(403, 'Contact is forbidden');
+    //     throw createHttpError(404, 'Contact not found');
+    // }
 
     res.status(204).send();
 };
@@ -68,11 +86,16 @@ export const patchContactController = async (req, res) => {
     const { name, phoneNumber, email, isFavourite, contactType } = req.body;
     const updatedContact = { name, phoneNumber, email, isFavourite, contactType };
 
-    const contact = await updateContact(contactId, updatedContact);
+    const contact = await updateContact(contactId, updatedContact, req.user._id);
 
     if (!contact) {
         throw createHttpError(404, 'Contact not found');
     }
+
+    // if (contact.userId?.toString() !== req.user._id.toString()) {
+    //     // throw createHttpError(403, 'Contact is forbidden');
+    //     throw createHttpError(404, 'Contact not found');
+    // }
 
     res.status(200).json({
         status: 20,

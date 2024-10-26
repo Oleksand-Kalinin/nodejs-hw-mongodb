@@ -7,8 +7,9 @@ export const registerUserSchema = Joi.object({
         'string.max': 'Username should have at most {#limit} characters',
         'any.required': 'Username is required',
     }),
-    email: Joi.string().min(3).max(50).required().messages({
+    email: Joi.string().email().min(3).max(50).required().messages({
         'string.base': 'Email should be a string',
+        'string.email': 'Please enter a valid email address',
         'string.min': 'Email should have at least {#limit} characters',
         'string.max': 'Email should have at most {#limit} characters',
         'any.required': 'Email is required',
