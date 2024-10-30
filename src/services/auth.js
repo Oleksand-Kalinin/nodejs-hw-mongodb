@@ -1,10 +1,18 @@
 import { UsersCollection } from '../db/models/user.js';
 import { SessionsCollection } from '../db/models/session.js';
 
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import createHttpError from 'http-errors';
-import { FIFTEEN_MINUTES, THIRTY_DAYS } from '../constants/index.js';
+import handlebars from 'handlebars';
+import path from 'node:path';
+import fs from 'node:fs/promises';
+
+import { env } from '../utils/env.js';
+import { sendEmail } from '../utils/sendMail.js';
+
+import { FIFTEEN_MINUTES, SMTP, TEMPLATES_DIR, THIRTY_DAYS } from '../constants/index.js';
 
 const createSession = () => {
     const accessToken = crypto.randomBytes(30).toString('base64');
@@ -89,4 +97,79 @@ export const refreshUsersSession = async (sessionId, refreshToken) => {
         userId: session.userId,
         ...newSession,
     });
+};
+
+// SEND EMAIL "RESET PASSWORD"
+export const requestResetToken = async (email) => {
+    const user = await UsersCollection.findOne({ email });
+
+    if (!user) {
+        throw createHttpError(404, 'User not found');
+    }
+
+    const resetToken = jwt.sign(
+        {
+            sub: user._id,
+            email,
+        },
+        env('JWT_SECRET'),
+        {
+            expiresIn: '5m',
+        },
+    );
+
+    const resetPasswordTemplatePath = path.join(
+        TEMPLATES_DIR,
+        'reset-password-email.html',
+    );
+
+    const templateSource = (
+        await fs.readFile(resetPasswordTemplatePath)
+    ).toString();
+
+    const template = handlebars.compile(templateSource);
+    const html = template({
+        name: user.name,
+        link: `${env('APP_DOMAIN')}/reset-password?token=${resetToken}`,
+    });
+
+    try {
+        await sendEmail({
+            from: env(SMTP.SMTP_FROM),
+            to: email,
+            subject: 'Reset your password',
+            html,
+        });
+    } catch (error) {
+        console.error(error);
+        throw createHttpError(500, "Failed to send the email, please try again later.");
+    }
+};
+
+// RESET PASSWORD
+export const resetPassword = async (token, password) => {
+    try {
+        const entries = jwt.verify(token, process.env.JWT_SECRET);
+
+        const user = await UsersCollection.findOne({ _id: entries.sub, email: entries.email });
+
+        if (user === null) {
+            throw createHttpError(404, 'User not found');
+        }
+
+        await SessionsCollection.deleteOne({ userId: user._id });
+
+        const encryptedPassword = await bcrypt.hash(password, 10);
+
+        await UsersCollection.findByIdAndUpdate(user._id, { password: encryptedPassword });
+    } catch (error) {
+        if (
+            error.name === 'JsonWebTokenError' ||
+            error.name === 'TokenExpiredError'
+        ) {
+            throw createHttpError(401, 'Token error');
+        }
+
+        throw error;
+    }
 };
