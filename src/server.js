@@ -9,6 +9,7 @@ import { env } from './utils/env.js';
 
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
+import { PHOTO_DIR } from './constants/index.js';
 
 const PORT = Number(env('PORT', '3000'));
 
@@ -18,6 +19,8 @@ export const setupServer = () => {
     app.use(express.json({
         type: ['application/json', 'application/vnd.api+json'],
     }));
+
+    app.use('/photo', express.static(PHOTO_DIR));
 
     app.use(cors());
 
