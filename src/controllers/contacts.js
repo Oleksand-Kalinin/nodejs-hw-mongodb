@@ -17,7 +17,13 @@ export const getContactsController = async (req, res) => {
     const { page, perPage } = parsePaginationParams(req.query);
     const { sortBy, sortOrder } = parseSortParams(req.query);
 
-    const result = await getAllContacts({ page, perPage, sortBy, sortOrder, userId: req.user._id });
+    const result = await getAllContacts({
+        page,
+        perPage,
+        sortBy,
+        sortOrder,
+        userId: req.user._id,
+    });
 
     res.status(200).json({
         status: 200,
@@ -57,9 +63,8 @@ export const createContactController = async (req, res) => {
             photoUrl = await savePhotoToCloudinary(photo);
         } else {
             photoUrl = await savePhotoToUploadDir(photo);
-        };
-    };
-
+        }
+    }
 
     const newContact = {
         name,
@@ -68,7 +73,7 @@ export const createContactController = async (req, res) => {
         isFavourite,
         contactType,
         userId: req.user._id,
-        photo: photoUrl
+        photo: photoUrl,
     };
 
     const contact = await createContact(newContact);
@@ -100,8 +105,26 @@ export const deleteContactController = async (req, res) => {
 export const patchContactController = async (req, res) => {
     const { contactId } = req.params;
     const { name, phoneNumber, email, isFavourite, contactType } = req.body;
+    const photo = req.file;
 
-    const updatedContact = { name, phoneNumber, email, isFavourite, contactType };
+    let photoUrl = null;
+
+    if (typeof photo !== 'undefined') {
+        if (env('ENABLE_CLOUDINARY') === 'true') {
+            photoUrl = await savePhotoToCloudinary(photo);
+        } else {
+            photoUrl = await savePhotoToUploadDir(photo);
+        }
+    }
+
+    const updatedContact = {
+        name,
+        phoneNumber,
+        email,
+        isFavourite,
+        contactType,
+        photo: photoUrl,
+    };
 
     const contact = await updateContact(contactId, updatedContact, req.user._id);
 
