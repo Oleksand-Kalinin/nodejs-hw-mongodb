@@ -43,8 +43,8 @@ requestBody:
             default: false
           photo:
             description: "Contact's photo"
-            type: [string, 'null']
-            example: https://res.cloudinary.com/dha4xvgfi/image/upload/v1724438545/g3n05nth0sgqzyakh0dm.jpg
+            type: string
+            format: binary
             default: null
 responses:
   '200':

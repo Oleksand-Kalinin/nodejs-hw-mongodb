@@ -64,21 +64,27 @@ responses:
                   items:
                     $ref: ../../components/schemas/contact.yaml
             page:
+              description: 'Current page number'
               type: integer
               example: 1
             perPage:
+              description: 'Number of items per page'
               type: integer
               example: 10
             totalItems:
+              description: 'Total number of contacts'
               type: integer
               example: 2
             totalPages:
+              description: 'Total number of pages'
               type: integer
               example: 1
             hasPreviousPage:
+              description: 'Indicates if there is a previous page'
               type: boolean
               example: false
             hasNextPage:
+              description: 'Indicates if there is a next page'
               type: boolean
               example: false
   '401':

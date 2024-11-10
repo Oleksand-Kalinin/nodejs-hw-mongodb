@@ -122,33 +122,33 @@
                       }
                     },
                     "page": {
-                      "type": "integer",
                       "description": "Current page number",
+                      "type": "integer",
                       "example": 1
                     },
                     "perPage": {
-                      "type": "integer",
                       "description": "Number of items per page",
+                      "type": "integer",
                       "example": 10
                     },
                     "totalItems": {
-                      "type": "integer",
                       "description": "Total number of contacts",
+                      "type": "integer",
                       "example": 2
                     },
                     "totalPages": {
-                      "type": "integer",
                       "description": "Total number of pages",
+                      "type": "integer",
                       "example": 1
                     },
                     "hasPreviousPage": {
-                      "type": "boolean",
                       "description": "Indicates if there is a previous page",
+                      "type": "boolean",
                       "example": false
                     },
                     "hasNextPage": {
-                      "type": "boolean",
                       "description": "Indicates if there is a next page",
+                      "type": "boolean",
                       "example": false
                     }
                   }
@@ -219,11 +219,8 @@
                   },
                   "photo": {
                     "description": "Contact's photo",
-                    "type": [
-                      "string",
-                      "null"
-                    ],
-                    "example": "https://res.cloudinary.com/dha4xvgfi/image/upload/v1724438545/g3n05nth0sgqzyakh0dm.jpg",
+                    "type": "string",
+                    "format": "binary",
                     "default": null
                   }
                 }
@@ -424,11 +421,8 @@
                   },
                   "photo": {
                     "description": "Contact's photo",
-                    "type": [
-                      "string",
-                      "null"
-                    ],
-                    "example": "https://res.cloudinary.com/dha4xvgfi/image/upload/v1724438545/g3n05nth0sgqzyakh0dm.jpg",
+                    "type": "string",
+                    "format": "binary",
                     "default": null
                   }
                 }
